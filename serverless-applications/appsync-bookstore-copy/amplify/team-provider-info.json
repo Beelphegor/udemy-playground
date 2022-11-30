@@ -1,0 +1,21 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-appsyncbookstore-dev-132400-authRole",
+      "UnauthRoleArn": "arn:aws:iam::626235996169:role/amplify-appsyncbookstore-dev-132400-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::626235996169:role/amplify-appsyncbookstore-dev-132400-authRole",
+      "Region": "eu-central-1",
+      "DeploymentBucketName": "amplify-appsyncbookstore-dev-132400-deployment",
+      "UnauthRoleName": "amplify-appsyncbookstore-dev-132400-unauthRole",
+      "StackName": "amplify-appsyncbookstore-dev-132400",
+      "StackId": "arn:aws:cloudformation:eu-central-1:626235996169:stack/amplify-appsyncbookstore-dev-132400/bb6d33c0-341f-11ed-b3bb-0287f89b15f8",
+      "AmplifyAppId": "d31fe19p9l54dv"
+    },
+    "categories": {
+      "auth": {
+        "appsyncbookstore003f1656003f1656": {},
+        "appsyncbookstore24f21cde24f21cde": {}
+      }
+    }
+  }
+}
