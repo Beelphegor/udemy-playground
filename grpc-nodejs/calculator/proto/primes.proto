@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package calculator;
+
+message PrimesRequest {
+    float n = 1;
+}
+
+message PrimesResponse {
+    float result = 1;
+}

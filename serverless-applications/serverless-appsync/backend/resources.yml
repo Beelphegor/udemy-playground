@@ -1,0 +1,135 @@
+# Tables
+booksTable: 
+  Type: AWS::DynamoDB::Table
+  Properties:
+    AttributeDefinitions:
+      - AttributeName: "bookId"
+        AttributeType: "S"
+    BillingMode: PAY_PER_REQUEST
+    KeySchema:
+      - AttributeName: "bookId"
+        KeyType: "HASH"
+    Tags:
+      - Key: Name
+        Value: books-table
+
+ordersTable: 
+  Type: AWS::DynamoDB::Table
+  Properties:
+    AttributeDefinitions:
+      - AttributeName: "orderId"
+        AttributeType: "S"
+      - AttributeName: "userId"
+        AttributeType: "S"
+      - AttributeName: "bookId"
+        AttributeType: "S"
+      - AttributeName: "createdAt"
+        AttributeType: "S"
+    BillingMode: PAY_PER_REQUEST
+    KeySchema:
+      - AttributeName: "userId"
+        KeyType: "HASH"
+      - AttributeName: "orderId"
+        KeyType: "RANGE"
+    GlobalSecondaryIndexes:
+      - IndexName: byOrder
+        KeySchema:
+          - AttributeName: "bookId"
+            KeyType: "HASH"
+          - AttributeName: "createdAt"
+            KeyType: "RANGE"
+        Projection:
+          ProjectionType: ALL
+    Tags:
+      - Key: Name
+        Value: orders-table
+
+# userPool
+cognitoUserPool: 
+  Type: AWS::Cognito::UserPool
+  Properties:
+    UserPoolName: "serverlessAppsyncUserpool"
+    UsernameAttributes:
+      - email
+
+cognitoUserPoolClient:
+  Type: AWS::Cognito::UserPoolClient
+  Properties:
+    ClientName: Web
+    UserPoolId: !Ref cognitoUserPool
+
+cognitoAdminGroup:
+  Type: AWS::Cognito::UserPoolGroup
+  Properties:
+    Description: "Admin users belongs to this group"
+    GroupName: "Admin"
+    Precedence: 0
+    RoleArn:  !GetAtt cognitoAdminIAMRole.Arn
+    UserPoolId: !Ref cognitoUserPool
+
+cognitoAdminIAMRole: 
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: "serverless-appsync-admin-role"
+    AssumeRolePolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Effect: Allow
+          Principal: 
+            Federated:
+              - "cognito-identity.amazonaws.com"
+          Action:
+            - "sts:AssumeRoleWithWebIdentity"
+    Policies:
+      - PolicyName: "bookstore-admin-group-policy"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - "dynamodb:*"
+              Resource:
+                - !GetAtt booksTable.Arn
+                - !GetAtt ordersTable.Arn
+    Description: "IAM role for admin in serverless-appsync demo"
+
+cognitoCustomerGroup:
+  Type: AWS::Cognito::UserPoolGroup
+  Properties:
+    Description: "Customer users belongs to this group"
+    GroupName: "Customer"
+    Precedence: 1
+    RoleArn:  !GetAtt cognitoUserIAMRole.Arn
+    UserPoolId: !Ref cognitoUserPool
+
+cognitoUserIAMRole: 
+  Type: AWS::IAM::Role
+  Properties:
+    RoleName: "serverless-appsync-customer-role"
+    AssumeRolePolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Effect: Allow
+          Principal: 
+            Federated:
+              - "cognito-identity.amazonaws.com"
+          Action:
+            - "sts:AssumeRoleWithWebIdentity"
+    Policies:
+      - PolicyName: "bookstore-customer-group-policy"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - "dynamodb:*"
+              Resource:
+                - !GetAtt ordersTable.Arn
+            - Effect: Allow
+              Action:
+                - "dynamodb:GetItem"
+                - "dynamodb:Query"
+                - "dynamodb:BatchGetItem"
+              Resource:
+                - !GetAtt booksTable.Arn
+    Description: "IAM role for customers in serverless-appsync demo"
